@@ -1,0 +1,49 @@
+﻿<html>  
+<head>  
+<script>  
+//Kontrollitakse kas juhtseade omab liikumisandurit 
+if (window.DeviceMotionEvent == undefined) {  
+	alert("No gyro");  
+}  
+//Kui seadmelt saab andmeid lugeda, siis hakatakse sellest andmeid lugema  
+else {  
+	window.addEventListener("devicemotion", accelerometerUpdates, true);  
+}  
+
+//Loome muutuja ja funktsiooni n�itude lugemiseks  
+var lastUpdate = 0;  
+function accelerometerUpdates(e) {  
+	//Sekunditeks teisendamine  
+	var seconds = new Date().getTime() / 1000;  
+
+	//Loome muutujad, millele hakkame vastava koordinaadi v��rtusi m��rama  
+	var aX = e.accelerationIncludingGravity.x;  
+	var aY = e.accelerationIncludingGravity.y;  
+
+	//N�itude k�simine ja muutujate m��ramine  
+	document.getElementById("x").innerHTML = aX;  
+	document.getElementById("y").innerHTML = aY;  
+
+	//1 korra sekundis n�idu uuendamine
+	var RATE = 10;  
+	if (lastUpdate + 1.0 / RATE >= seconds)  
+	return;  
+
+	// N�itude edastamine  
+	var xhr = new XMLHttpRequest();  
+	xhr.open("GET", "/update_servo?x=" + aX + "&y=" + aY, true);  
+	xhr.send();  
+	lastUpdate = seconds;  
+}  
+</script>  
+</head>  
+
+<body>  
+<!-- Kuvatakse veebilehel roboti nimi ning x ja y koordinaadid, j�rgnevalt v�ib html keeles lehte �mbes kujundada vastavalt oma soovile -->  
+<h1>Tulista dementoreid</h1>
+
+
+JUHTSEADME x telg <b id="x"></b><br>  
+JUHTSEADME y telg <b id="y"></b><br>  
+</body>  
+</html>  
