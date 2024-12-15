@@ -1,14 +1,27 @@
 ﻿<html>  
 <head>  
+<script src="/socket.io/socket.io.js"></script>
 <script>  
 //Kontrollitakse kas juhtseade omab liikumisandurit 
 if (window.DeviceMotionEvent == undefined) {  
 	alert("No gyro");  
+	return;
 }  
 //Kui seadmelt saab andmeid lugeda, siis hakatakse sellest andmeid lugema  
 else {  
 	window.addEventListener("devicemotion", accelerometerUpdates, true);  
 }  
+
+const socket = new WebSocket("ws://localhost:8081");
+
+socket.addEventListener("open", (event) => {
+  socket.send("Hello Server!");
+});
+
+// Listen for messages
+socket.addEventListener("message", (event) => {
+  console.log("Message from server ", event.data);
+});
 
 //Loome muutuja ja funktsiooni n�itude lugemiseks  
 var lastUpdate = 0;  
@@ -31,8 +44,7 @@ function accelerometerUpdates(e) {
 
 	// N�itude edastamine  
 	var xhr = new XMLHttpRequest();  
-	xhr.open("GET", "/update_servo?x=" + aX + "&y=" + aY, true);  
-	xhr.send();  
+	socket.send("x=" + aX + "&y=" + aY);
 	lastUpdate = seconds;  
 }  
 </script>  

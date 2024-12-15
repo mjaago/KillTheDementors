@@ -5,6 +5,8 @@ import threading
 from random import randint
 import socket
 import time
+import asyncio
+from websockets.server import serve
 
 
 BLACK = (0, 0, 0)
@@ -144,12 +146,6 @@ def peli(y, x):
     pygame.display.flip()
 
 
-
-
-
-
-
-
 class MyHTTPHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         global a
@@ -170,11 +166,19 @@ class MyHTTPHandler(BaseHTTPRequestHandler):
             self.wfile.write(f.read())
             f.close()
 
+def echo(websocket):
+    for message in websocket:
+        websocket.send(message)
 
 def run_server(server_class=HTTPServer, handler_class=MyHTTPHandler):
+    with serve(echo, "localhost", 8081) as server:
+        server.serve_forever()
+
     server_address = ('', 8080)
     httpd = server_class(server_address, handler_class)
     httpd.serve_forever()
+
+# server
 
 a = 0
 b = 0
